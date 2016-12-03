@@ -1,5 +1,5 @@
-﻿// GrayFoxMods
-// December 1st, 2016
+// GrayFoxMods
+// December 2nd, 2016
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,19 +16,20 @@ namespace WeatherClothing
         public override void Entry(IModHelper helper)
         {
             this.Monitor.Log("Entered WeatherClothing Entry", LogLevel.Debug);
-            //StardewModdingAPI.Events.TimeEvents.SeasonOfYearChanged += UpdateSeasonEvent; causes crash
-            StardewModdingAPI.Events.GameEvents.GameLoaded += GameLoadEvent; //PlayerEvents.LoadedGame causes crash
+            //StardewModdingAPI.Events.TimeEvents.SeasonOfYearChanged += UpdateSeasonEvent;
+            //StardewModdingAPI.Events.GameEvents.GameLoaded += GameLoadEvent; //PlayerEvents.LoadedGame causes crash
+            StardewModdingAPI.Events.TimeEvents.TimeOfDayChanged += UpdateSeasonEvent;
             this.Monitor.Log("Exited WeatherClothing Entry", LogLevel.Debug);
         }
 
         static void UpdateSeasonEvent(object sender, EventArgs e)
         {
-            //this.Monitor.Log("Entered Update Season", LogLevel.Info);
+            Console.WriteLine("Entered Update Season (TimeOfDayChanged)");
             if (StardewValley.Game1.currentLocation == null)
                 return;
-
-            ChangeNPC();
-            //this.Monitor.Log("Exited Update Season", LogLevel.Info);
+            if (StardewValley.Game1.timeOfDay == 610)
+                ChangeNPC();
+            Console.WriteLine("Exited Update Season (TimeOfDayChanged)");
         } // End Update Season Event
 
         static void GameLoadEvent(object sender, EventArgs e)
@@ -37,12 +38,14 @@ namespace WeatherClothing
             if (StardewValley.Game1.currentLocation == null)
                 return;
 
-            ChangeNPC();
+            if (StardewValley.Game1.timeOfDay == 610)
+                 ChangeNPC();
             //this.Monitor.Log("Exited Game Load", LogLevel.Info);
         }
 
         public static void ChangeNPC()
         {
+            Console.WriteLine("Entered ChangeNPC");
             foreach (NPC npc in Utility.getAllCharacters())
             {
                 GameLocation locationFromName = Game1.getLocationFromName(npc.name);
@@ -56,12 +59,12 @@ namespace WeatherClothing
 
             } // End loop through getAllCharacters
 
-            //this.Monitor.Log("Exited ChangeNPC", LogLevel.Info);
+            Console.WriteLine("Exited ChangeNPC");
         } // End ChangeNPC()
 
         public static void reloadWeatherSprite(NPC currentNpc)
         {
-            //H.Monitor.Log("Entered ReloadWeather", LogLevel.Info);
+            Console.WriteLine("Entered reloadWeatherSprite");
             string name = currentNpc.name;
             string str = name;
 
@@ -71,7 +74,6 @@ namespace WeatherClothing
                 if (File.Exists(cFolder)){
                     str = name + "_Winter";
                 }
-                //this.Monitor.Log("NPC should have a winter sprite", LogLevel.Info);
             }
 
             currentNpc.sprite = new AnimatedSprite(Game1.content.Load<Texture2D>("Characters\\" + str));
@@ -91,7 +93,7 @@ namespace WeatherClothing
             if (!Game1.newDay && (int)Game1.gameMode != 6)
                 return;
 
-            //this.Monitor.Log("Exited ReloadWeather", LogLevel.Info);
+            Console.WriteLine("Exited reloadWeatherSprite");
             return;
         } // End ReloadWeatherSprite()
 
