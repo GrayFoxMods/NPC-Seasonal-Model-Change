@@ -1,5 +1,5 @@
 // GrayFoxMods
-// December 2nd, 2016
+// December 5th, 2016
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,12 +7,27 @@ using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 
 namespace WeatherClothing
 {
     public class WeatherClothing : Mod
     {
+        static public List<NPC> listNPC;
+
+        private static readonly string LOG_FILENAME = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Mods\WeatherClothing\" + "WeatherClothing Log.txt";
+
+        public static void LogMessageToFile(string msg)
+
+        {
+
+            msg = string.Format("{0:G}: {1}{2}", DateTime.Now, msg, Environment.NewLine);
+
+            File.AppendAllText(LOG_FILENAME, msg);
+
+        }
+
         public override void Entry(IModHelper helper)
         {
             this.Monitor.Log("Entered WeatherClothing Entry", LogLevel.Debug);
@@ -34,68 +49,74 @@ namespace WeatherClothing
 
         static void GameLoadEvent(object sender, EventArgs e)
         {
-            //this.Monitor.Log("Entered Game Load", LogLevel.Info);
+            Console.WriteLine("Entered GameLoadEvent");
             if (StardewValley.Game1.currentLocation == null)
                 return;
 
             if (StardewValley.Game1.timeOfDay == 610)
-                 ChangeNPC();
-            //this.Monitor.Log("Exited Game Load", LogLevel.Info);
+                ChangeNPC();
+            Console.WriteLine("Exited Game Load");
         }
 
         public static void ChangeNPC()
         {
-            Console.WriteLine("Entered ChangeNPC");
+            LogMessageToFile("Entered ChangeNPC");
             foreach (NPC npc in Utility.getAllCharacters())
             {
-                GameLocation locationFromName = Game1.getLocationFromName(npc.name);
+                if (!npc.IsMonster)
                 {
-                    if (!npc.DefaultPosition.Equals(Vector2.Zero))
-                        npc.position = npc.DefaultPosition;
-                    npc.currentLocation = locationFromName;
-                    reloadWeatherSprite(npc);
-
-                } // end location check
-
+                    LogMessageToFile("Adding " + npc.name + " to the list");
+                    listNPC.Add(npc);
+                    LogMessageToFile("Added " + npc.name + " to the list");
+                }
+                LogMessageToFile("List Complete");
             } // End loop through getAllCharacters
+              //reloadWeatherSprite(listNPC);
 
-            Console.WriteLine("Exited ChangeNPC");
+            LogMessageToFile("Exited ChangeNPC");
         } // End ChangeNPC()
 
-        public static void reloadWeatherSprite(NPC currentNpc)
+        public static void reloadWeatherSprite(List<NPC> listNPC)
         {
-            Console.WriteLine("Entered reloadWeatherSprite");
-            string name = currentNpc.name;
-            string str = name;
-
-            if (Game1.IsWinter)
+            LogMessageToFile("Entered reloadWeatherSprite");
+            for (int i = 0; i < listNPC.Count; ++i)
             {
-                string cFolder = @"C:\Program Files(x86)\Steam\steamapps\common\Stardew Valley\Content\Characters";
-                if (File.Exists(cFolder)){
-                    str = name + "_Winter";
+                LogMessageToFile("Count in list: " + i.ToString());
+                string name = listNPC[i].name;
+                string str = name;
+
+                if (Game1.IsWinter)
+                {
+                    string cFolder = @"C:\Program Files(x86)\Steam\steamapps\common\Stardew Valley\Content\Characters\" + name;
+                    if (File.Exists(cFolder))
+                    { // better to swap location of if statements
+                        str = name + "_Winter";
+                    }
                 }
-            }
 
-            currentNpc.sprite = new AnimatedSprite(Game1.content.Load<Texture2D>("Characters\\" + str));
+                LogMessageToFile("About to reassign sprite");
+                listNPC[i].sprite = new AnimatedSprite(Game1.content.Load<Texture2D>("Characters\\" + str));
 
-            try
-            {
-                //currently shows that there is no portrait in NPC, but there is reference of it in the game code as a {get; set;}?
-                //currentNpc.portrait = Game1.content.Load<Texture2D>("Portraits\\" + str);
-                //this.Monitor.Log("Weather portrait should be Portraits\\" + str, LogLevel.Info);
-            }
-            catch (Exception ex)
-            {
-                //currentNpc.portrait = (Texture2D)null;
-                //this.Monitor.Log("Weather portrait error occured", LogLevel.Error);
-            }
-            int num = currentNpc.isInvisible ? 1 : 0;
-            if (!Game1.newDay && (int)Game1.gameMode != 6)
-                return;
+                try
+                {
+                    //currently shows that there is no portrait in NPC, but there is reference of it in the game code as a {get; set;}?
+                    //currentNpc.portrait = Game1.content.Load<Texture2D>("Portraits\\" + str);
+                    //this.Monitor.Log("Weather portrait should be Portraits\\" + str, LogLevel.Info);
+                }
+                catch (Exception ex)
+                {
+                    //currentNpc.portrait = (Texture2D)null;
+                    //this.Monitor.Log("Weather portrait error occured", LogLevel.Error);
+                }
 
-            Console.WriteLine("Exited reloadWeatherSprite");
+                int num = listNPC[i].isInvisible ? 1 : 0;
+                if (!Game1.newDay && (int)Game1.gameMode != 6)
+                    return;
+            }
+            LogMessageToFile("Exited reloadWeatherSprite");
             return;
         } // End ReloadWeatherSprite()
+
 
     } // End ModEntry Class
 
