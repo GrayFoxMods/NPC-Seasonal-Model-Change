@@ -80,7 +80,7 @@ namespace WeatherClothing
                 {
                     str = name + "_Winter";
                 }
-                // redundant check of location
+
                 LogMessageToFile("About to reassign sprite for character " + name);
                 string cFolder = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Content\Characters\\" + str + ".xnb";
                 if (File.Exists(cFolder))
@@ -92,19 +92,16 @@ namespace WeatherClothing
                         listNPC[i].sprite.spriteHeight = 32;
                 }
 
-                /*
                 try
                 {
-                    // portrait is a private variable of NPC
-                    listNPC[i].portrait = Game1.content.Load<Texture2D>("Portraits\\" + str);
+                    listNPC[i].Portrait = Game1.content.Load<Texture2D>("Portraits\\" + str);
                     LogMessageToFile("Weather portrait should be Portraits\\" + str);
                 }
                 catch (Exception ex)
                 {
-                    listNPC[i].portrait = (Texture2D)null;
+                    listNPC[i].Portrait = (Texture2D)null;
                     LogMessageToFile("Weather portrait error occured");
                 }
-                */
 
                 int num = listNPC[i].isInvisible ? 1 : 0;
             }
